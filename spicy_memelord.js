@@ -3,7 +3,8 @@ var fs = require('fs');
 var secret = process.env.DISCORD_SECRET;
 var wordList = fs.readFileSync('keywords.csv', 'utf8').split(',');
 var bot = new Discord.Client({disableEveryone: true});
-
+var timeLastSuccessfulMessageWasSent = new Date();
+var timeToWait = 30 * 1000; /* Seconds times 1000ms */
 
 bot.on("ready", async () => {
   console.log(`Bot is ready! ${bot.user.username}`);
@@ -29,8 +30,13 @@ function keywordIsFound(sentence){
 }
 
 bot.on('message', message => {
-  if(keywordIsFound(message.content)) {
-    message.reply('Found the keyword!');
+  if(message.author.username !== bot.user.username) {
+    if((new Date() - timeLastSuccessfulMessageWasSent) > timeToWait) {
+      if(keywordIsFound(message.content)) {
+        message.reply('Found the keyword!');
+        timeLastSuccessfulMessageWasSent = new Date();
+      }
+    }
   }
 });
 
