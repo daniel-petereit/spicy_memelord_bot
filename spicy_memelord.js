@@ -21,7 +21,7 @@ function respondWithSpicyMeme(keyword, cb){
 
 
 
-bot.on("ready", async function() {
+bot.on("ready", async () => {
   console.log(`Bot is ready! ${bot.user.username}`);
 
   try {
