@@ -5,18 +5,21 @@ var secret = process.env.DISCORD_SECRET;
 var wordList = fs.readFileSync('keywords.csv', 'utf8').split(',');
 var bot = new Discord.Client({disableEveryone: true});
 var timeLastSuccessfulMessageWasSent = new Date();
-var timeToWait = 30 * 1000; /* Seconds times 1000ms */
+var timeToWait = 120 * 1000; /* Seconds times 1000ms */
 
 
-function getSpicyMeme(keyword){
+function respondWithSpicyMeme(keyword, cb){
+  var spicyMemeLink;
   giphy.search(keyword, function(err, res){
     if(err){
       return console.log(err);
     } else {
-      return res.data[0].url;
+      cb(res.data[Math.floor(Math.random() * 10)].url);
     }
   });
 }
+
+
 
 bot.on("ready", async () => {
   console.log(`Bot is ready! ${bot.user.username}`);
@@ -34,7 +37,7 @@ function keywordIsFound(sentence){
   for(var i = 0; i < message_words.length; i++){
     for(var j = 0; j < wordList.length; j++){
       if(message_words[i].toLowerCase() === wordList[j].toLowerCase()){
-        return true;
+        return message_words[i];
       }
     }
   }
@@ -44,9 +47,12 @@ function keywordIsFound(sentence){
 bot.on('message', message => {
   if(message.author.username !== bot.user.username) {
     if((new Date() - timeLastSuccessfulMessageWasSent) > timeToWait) {
-      if(keywordIsFound(message.content)) {
-        message.reply('Found the keyword!');
-        timeLastSuccessfulMessageWasSent = new Date();
+      keyWord = keywordIsFound(message.content);
+      if(keyWord) {
+        respondWithSpicyMeme(keyWord, function(url){
+          message.reply(url);
+          timeLastSuccessfulMessageWasSent = new Date();
+        })
       }
     }
   }
