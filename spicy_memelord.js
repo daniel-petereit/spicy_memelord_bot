@@ -1,10 +1,22 @@
 var Discord = require("discord.js");
+var giphy = require("giphy-api")(process.env.GIPHY_SECRET);
 var fs = require('fs');
 var secret = process.env.DISCORD_SECRET;
 var wordList = fs.readFileSync('keywords.csv', 'utf8').split(',');
 var bot = new Discord.Client({disableEveryone: true});
 var timeLastSuccessfulMessageWasSent = new Date();
 var timeToWait = 30 * 1000; /* Seconds times 1000ms */
+
+
+function getSpicyMeme(keyword){
+  giphy.search(keyword, function(err, res){
+    if(err){
+      return console.log(err);
+    } else {
+      return res.data[0].url;
+    }
+  });
+}
 
 bot.on("ready", async () => {
   console.log(`Bot is ready! ${bot.user.username}`);

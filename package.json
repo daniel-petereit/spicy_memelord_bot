@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/daniel-petereit/spicy_memelord_bot#readme",
   "dependencies": {
-    "discord.js": "^11.2.1"
+    "discord.js": "^11.2.1",
+    "giphy-api": "^1.2.7"
   }
 }
