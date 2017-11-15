@@ -1,6 +1,6 @@
 {
   "name": "spicy_memelord_bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "discord bot that serves up only the spiciest of memes!",
   "main": "spicy_memelord.js",
   "scripts": {
