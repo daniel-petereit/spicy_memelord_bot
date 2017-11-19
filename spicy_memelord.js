@@ -1,16 +1,18 @@
+var wordLists = require("./keywords.js")
 var Discord = require("discord.js");
 var giphy = require("giphy-api")(process.env.GIPHY_SECRET);
-var fs = require('fs');
 var secret = process.env.DISCORD_SECRET;
-var wordList = fs.readFileSync('keywords.csv', 'utf8').split(',');
 var bot = new Discord.Client({disableEveryone: true});
 var timeLastSuccessfulMessageWasSent = new Date();
 var timeToWait = 120 * 1000; /* Seconds times 1000ms */
 
 
-function respondWithSpicyMeme(keyword, cb){
+var words = wordLists.phrases.concat(wordLists.keywords)
+
+function respondWithSpicyMeme(phrase, cb){
+  console.log("Responding with a spicy meme")
   var spicyMemeLink;
-  giphy.search(keyword, function(err, res){
+  giphy.search(phrase, function(err, res){
     if(err){
       return console.log(err);
     } else {
@@ -18,8 +20,6 @@ function respondWithSpicyMeme(keyword, cb){
     }
   });
 }
-
-
 
 bot.on("ready", async () => {
   console.log(`Bot is ready! ${bot.user.username}`);
@@ -32,24 +32,24 @@ bot.on("ready", async () => {
   };
 });
 
-function keywordIsFound(sentence){
-  var message_words = sentence.split(' ');
-  for(var i = 0; i < message_words.length; i++){
-    for(var j = 0; j < wordList.length; j++){
-      if(message_words[i].toLowerCase() === wordList[j].toLowerCase()){
-        return message_words[i];
-      }
+function phraseIsFound(sentence){
+  for(var key in words) {
+    if(sentence.indexOf(words[key]) >= 0){
+      console.log("Found Phrase:")
+      console.log(words[key])
+      return words[key]
     }
   }
   return false;
 }
 
 bot.on('message', message => {
+  console.log(message.content)
   if(message.author.username !== bot.user.username) {
     if((new Date() - timeLastSuccessfulMessageWasSent) > timeToWait) {
-      keyWord = keywordIsFound(message.content);
-      if(keyWord) {
-        respondWithSpicyMeme(keyWord, function(url){
+      phrase = phraseIsFound(message.content);
+      if(phrase) {
+        respondWithSpicyMeme(phrase, function(url){
           message.reply(url);
           timeLastSuccessfulMessageWasSent = new Date();
         })
