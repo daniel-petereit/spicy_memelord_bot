@@ -2,6 +2,7 @@ let myObjOfABunchOfStuff = { "keywords": ["apple","boy","boi","thicc","thickness
   "phrases": ["thicc boi", "vape naysh", "vape nation", "elon musk", "space x", "cross fit", "benedict cumberbatch", "bumblesnuff crimpysnitch", "neon icon", "versace python", "jody 3 moons", "river dance", "scary movie"],
   "pairings": {"good stuff": "michael jackson popcorn",
                "thinking hard": "derp",
+               "thinking real hard": "derp",
                "so smart": "derp",
                "nutty": "planters peanuts",
                "taco": "taco toss",

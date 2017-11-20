@@ -1,24 +1,37 @@
-var wordLists = require("./keywords.js")
-var Discord = require("discord.js");
-var giphy = require("giphy-api")(process.env.GIPHY_SECRET);
-var secret = process.env.DISCORD_SECRET;
-var bot = new Discord.Client({disableEveryone: true});
-var timeLastSuccessfulMessageWasSent = new Date();
-// var timeToWait = 120 * 1000; /* Seconds times 1000ms */
-var timeToWait = 0;
+let wordLists = require("./keywords.js")
+let Discord = require("discord.js");
+let giphy = require("giphy-api")(process.env.GIPHY_SECRET);
 
+const secret = process.env.DISCORD_SECRET;
+let bot = new Discord.Client({disableEveryone: true});
+let timeLastSuccessfulMessageWasSent = new Date();
+let timeToWait = 120 * 1000; /* Seconds times 1000ms */
+let words = wordLists.phrases.concat(wordLists.keywords)
+let pairings = wordLists.pairings;
+let myArgs = process.argv.slice(2);
 
-var words = wordLists.phrases.concat(wordLists.keywords)
-var pairings = wordLists.pairings;
+// Handle Command Line Args
+switch (myArgs[0]) {
+  case 'dev':
+    timeToWait = 0;
+    console.log("Running in Dev mode");
+    break;
+  default:
+    console.log(`Sorry, I do not understand the command "${myArgs[0]}".`);
+    process.exit();
+}
 
 function respondWithSpicyMeme(phrase, cb){
+  if(!phrase){
+    return
+  }
   console.log("Responding with a spicy meme")
   var spicyMemeLink;
   giphy.search(phrase, function(err, res){
     if(err){
       return console.log(err);
     } else {
-      cb(res.data[Math.floor(Math.random() * 10)].url);
+      cb(res.data[Math.floor(Math.random() * 6)].url);
     }
   });
 }
@@ -34,37 +47,36 @@ bot.on("ready", async () => {
   };
 });
 
+function phraseFinder(sentence, collection, cb){
+  for(var key in collection) {
+    let result = cb(key)
+    if(result) return result;
+  }
+}
+
 function phraseIsFound(sentence){
-  // Look for pairings first
-  for(var key in pairings) {
-    if(sentence.indexOf(key) >= 0){
-      return pairings[key]
-    }
-  }
-  // Look for phrase/word matches
-  for(var key in words) {
-    if(sentence.indexOf(words[key]) >= 0){
-      console.log("Found Phrase:")
-      console.log(words[key])
-      return words[key]
-    }
-  }
-  return false;
+    let result = phraseFinder(sentence, pairings, function(key){
+                                                    return (sentence.indexOf(key) >= 0) ? pairings[key] : false
+                                                  });
+    return result ? result : phraseFinder(sentence, words, function(key){
+                                                    return (sentence.indexOf(words[key]) >= 0) ? words[key] : false
+                                                  });
+}
+
+function botCanSendMessage(message){
+  let messengerIsNotBot = (message.author.username !== bot.user.username)
+  let enoughTimeHasPassed = (new Date() - timeLastSuccessfulMessageWasSent > timeToWait)
+  return  (messengerIsNotBot && enoughTimeHasPassed)
 }
 
 bot.on('message', message => {
-  console.log(message.content)
-  if(message.author.username !== bot.user.username) {
-    if((new Date() - timeLastSuccessfulMessageWasSent) > timeToWait) {
-      phrase = phraseIsFound(message.content);
-      if(phrase) {
-        respondWithSpicyMeme(phrase, function(url){
-          message.reply(url);
-          timeLastSuccessfulMessageWasSent = new Date();
-        })
-      }
+  console.log(`Incoming Transmission: ${message.content}`)
+    if(botCanSendMessage(message)) {
+      respondWithSpicyMeme(phraseIsFound(message.content), function(url){
+        message.reply(url);
+        timeLastSuccessfulMessageWasSent = new Date();
+      })
     }
-  }
 });
 
 bot.login(secret);
