@@ -16,9 +16,6 @@ switch (myArgs[0]) {
     timeToWait = 0;
     console.log("Running in Dev mode");
     break;
-  default:
-    console.log(`Sorry, I do not understand the command "${myArgs[0]}".`);
-    process.exit();
 }
 
 function respondWithSpicyMeme(phrase, cb){
@@ -78,5 +75,4 @@ bot.on('message', message => {
       })
     }
 });
-
 bot.login(secret);

@@ -6,7 +6,8 @@ let myObjOfABunchOfStuff = { "keywords": ["apple","boy","boi","thicc","thickness
                "so smart": "derp",
                "nutty": "planters peanuts",
                "taco": "taco toss",
-               "pizza": "sexy pizza"}
+               "pizza": "sexy pizza"
+              }
 }
 
 module.exports = myObjOfABunchOfStuff;
