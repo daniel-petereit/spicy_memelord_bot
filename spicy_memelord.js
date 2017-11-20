@@ -4,10 +4,12 @@ var giphy = require("giphy-api")(process.env.GIPHY_SECRET);
 var secret = process.env.DISCORD_SECRET;
 var bot = new Discord.Client({disableEveryone: true});
 var timeLastSuccessfulMessageWasSent = new Date();
-var timeToWait = 120 * 1000; /* Seconds times 1000ms */
+// var timeToWait = 120 * 1000; /* Seconds times 1000ms */
+var timeToWait = 0;
 
 
 var words = wordLists.phrases.concat(wordLists.keywords)
+var pairings = wordLists.pairings;
 
 function respondWithSpicyMeme(phrase, cb){
   console.log("Responding with a spicy meme")
@@ -33,6 +35,13 @@ bot.on("ready", async () => {
 });
 
 function phraseIsFound(sentence){
+  // Look for pairings first
+  for(var key in pairings) {
+    if(sentence.indexOf(key) >= 0){
+      return pairings[key]
+    }
+  }
+  // Look for phrase/word matches
   for(var key in words) {
     if(sentence.indexOf(words[key]) >= 0){
       console.log("Found Phrase:")
